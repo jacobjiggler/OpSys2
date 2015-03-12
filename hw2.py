@@ -2,28 +2,21 @@
 #Satoshi Matsuura
 
 import random, Queue, sys, copy
-
-
 # Time for context switching
 tcs = 4
 #global time
 time = 0
 
-readyQueue = Queue.Queue()
-
-
 # Interactive, cpu bound
 class Process:
-
-    def __init__(self, processType = "interactive", pid):
+    def __init__ (self, processType):
         self.processType = processType
         self.burstTime = self.setBurstTime()
         self.remainingBursts = 1
-		self.waitTime = 0
-		self.pid = pid
+        self.waitTime = 0
 		
-        if self.processType == "cpuBound":
-            self.remainingBursts = 6
+        #if self.processType == "cpuBound":
+		#	self.remainingBursts = 6
 		
 
     def setBurstTime(self):
@@ -58,6 +51,6 @@ if __name__ == '__main__':
 			if sys.argv[3]:
 				tSlice = int(sys.argv[3])
 	
-	
+	print "Yay"
 	
 
