@@ -1,8 +1,8 @@
 #Jacob Martin
 #Satoshi Matsuura
 
+import random, Queue, sys, copy
 
-import rand, Queue, sys, copy
 
 # Time for context switching
 tcs = 4
@@ -20,9 +20,12 @@ class Process:
         self.processType = processType
         self.burstTime = self.setBurstTime()
         self.remainingBursts = 1
+		self.waitTime = 0
+		
 
         if self.processType == "cpuBound":
             self.remainingBursts = 6
+		
 
 
 
@@ -47,3 +50,4 @@ if __name__ == '__main__':
 				num_proc = int(sys.argv[1])
 			if sys.argv[2]:
 				num_cpu = int(sys.argv[2])
+
