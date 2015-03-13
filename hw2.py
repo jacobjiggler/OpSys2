@@ -9,15 +9,16 @@ time = 0
 
 # Interactive, cpu bound
 class Process:
-    def __init__ (self, processType):
+    def __init__ (self, processType, pid):
         self.processType = processType
         self.burstTime = self.setBurstTime()
         self.remainingBursts = 1
         self.waitTime = 0
-		
+        self.pid = pid
+        
         #if self.processType == "cpuBound":
 		#	self.remainingBursts = 6
-		
+        
 
     def setBurstTime(self):
         # Sets random burst time for cpu bound or interactive
