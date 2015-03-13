@@ -10,11 +10,17 @@ time = 0
 # Interactive, cpu bound
 class Process:
     def __init__ (self, processType, pid):
+        self.state = 0 #0 = Blocked on I/O, 1 = Running, 2 = Ready
+        self.cpuTime = 0
+        self.ioTime = 0
         self.processType = processType
         self.burstTime = self.setBurstTime()
         self.remainingBursts = 1
         self.waitTime = 0
         self.pid = pid
+        self.justBlocked = 0
+        self.waitTill = 0
+        self.start_running = 0
 
         if self.processType == "cpuBound":
             self.remainingBursts = 6
@@ -31,8 +37,7 @@ class Process:
 
 def context_switch(processA, processB, time):
     print "[time " + str(time) + "ms] Context switch (swapping out Process ID " + str(processA.pid) + " for Process ID " + str(processB.pid) +")"
-    time+=tcs
-    return time
+
 
 def FCFS(readyQueue, num_cpu):
     temp = 0
@@ -44,13 +49,48 @@ def FCFS(readyQueue, num_cpu):
     for i in range(0, num_cpu):
         if (len(readyQueue) > 0):
             cpu[i] = readyQueue.pop(0)
-    while(len(readyQueue) > 0 and num_finished > num_process):
-        if (temp > 0):
-            context_switch(temp_process, readyQueue.pop(0))
-        temp= 1
+    while(len(readyQueue) > 0 and num_finished < num_process):
+        #if (temp > 0):
+        #    context_switch(temp_process, readyQueue.pop(0))
+        #temp= 1
+        #cpu_num++;
+        
+        for i in range(0, num_cpu):
+            cpu[i].cpuTime+=1
+            if cpu[i].burstTime == (time-cpu[i].start_running): #STILL NEEDS TO CHANGE
+                cpu[i].justBlocked = 1
+                cpu[i].remainingBursts-=1
+                if remainingBursts == 0:
+                    num_finished+=1
+                    print "[time " + str(time) + "ms] " + cpu[i].processType + "process ID " + str(cpu[i].pid) + " terminated (turnaround time " + str(time) +  "ms, total wait time " + str(cpu[i].waitTime) + "ms)"
+                else:
+                    print "[time " + str(time) + "ms] " + cpu[i].processType + "process ID " + str(cpu[i].pid) + " burst done (turnaround time " + str(time) +  "ms, total wait time " + str(cpu[i].waitTime) + "ms)"
+        
+        
+        for i in range(0, num_cpu):
+            if cpu[i].justBlocked == 1:
+                ioTime = random.randint(1000, 4500)
+                cpu[i].ioTime += ioTime
+                cpu[i].wait_til = time + ioTime
+                cpu[i].justBlocked = 0
+                
+            if cpu[i].wait_til == time:
+                cpu[i].wait_til = 0
+                cpu[i].state = 2
+                if cpu[i].remainingBursts > 0 :
+                    readyQueue.append(cpu[i])
+                if len(readyQueue) > 0:
+                    temp_p = readyQue.pop(0)
+                    context_switch(cpu[i], temp_p)
+                    cpu[i] = temp_p
+                    cpu[i].start_running = time
+                
+
+        for p in readyQueue:
+            p.waitTime+=1
+        
         time+= 1
-        cpu_num++;
-    adsf
+
     return 0
 
 def SJF(readyQueue, num_cpu):
