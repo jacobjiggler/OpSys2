@@ -54,19 +54,20 @@ def FCFS(readyQueue, num_cpu):
         #    context_switch(temp_process, readyQueue.pop(0))
         #temp= 1
         #cpu_num++;
-        
+
         for i in range(0, num_cpu):
-            cpu[i].cpuTime+=1
-            if cpu[i].burstTime == (time-cpu[i].start_running): #STILL NEEDS TO CHANGE
-                cpu[i].justBlocked = 1
-                cpu[i].remainingBursts-=1
-                if remainingBursts == 0:
-                    num_finished+=1
-                    print "[time " + str(time) + "ms] " + cpu[i].processType + "process ID " + str(cpu[i].pid) + " terminated (turnaround time " + str(time) +  "ms, total wait time " + str(cpu[i].waitTime) + "ms)"
-                else:
-                    print "[time " + str(time) + "ms] " + cpu[i].processType + "process ID " + str(cpu[i].pid) + " burst done (turnaround time " + str(time) +  "ms, total wait time " + str(cpu[i].waitTime) + "ms)"
-        
-        
+            if cpu[i]:
+                cpu[i].cpuTime+=1
+                if cpu[i].burstTime == (time-cpu[i].start_running):
+                    cpu[i].justBlocked = 1
+                    cpu[i].remainingBursts-=1
+                    if remainingBursts == 0:
+                        num_finished+=1
+                        print "[time " + str(time) + "ms] " + cpu[i].processType + "process ID " + str(cpu[i].pid) + " terminated (turnaround time " + str(time) +  "ms, total wait time " + str(cpu[i].waitTime) + "ms)"
+                    else:
+                        print "[time " + str(time) + "ms] " + cpu[i].processType + "process ID " + str(cpu[i].pid) + " burst done (turnaround time " + str(time) +  "ms, total wait time " + str(cpu[i].waitTime) + "ms)"
+
+
         for i in range(0, num_cpu):
             if cpu[i]:
                 if cpu[i].justBlocked == 1:
@@ -74,7 +75,7 @@ def FCFS(readyQueue, num_cpu):
                     cpu[i].ioTime += ioTime
                     cpu[i].wait_til = time + ioTime
                     cpu[i].justBlocked = 0
-                    
+
                 if cpu[i].wait_til == time:
                     cpu[i].wait_til = 0
                     if cpu[i].remainingBursts > 0 :
@@ -86,11 +87,11 @@ def FCFS(readyQueue, num_cpu):
                         cpu[i].start_running = time
                     else:
                         cpu[i] = None
-                
+
 
         for p in readyQueue:
             p.waitTime+=1
-        
+
         time+= 1
 
     return 0
