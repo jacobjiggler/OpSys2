@@ -1,7 +1,7 @@
 #Jacob Martin
 #Satoshi Matsuura
 
-import random, Queue, sys, copy
+import random, sys, copy
 # Time for context switching
 tcs = 4
 #global time
@@ -17,41 +17,60 @@ class Process:
         self.pid = pid
         
         if self.processType == "cpuBound":
-			self.remainingBursts = 6
+            self.remainingBursts = 6
         
 
     def setBurstTime(self):
         # Sets random burst time for cpu bound or interactive
-        if (self.processType != "interactive" or self.processType != "cpuBound"):
-            raise Exception("Invalid Process Type")
         if (self.processType == "interactive"):
-            return rand.randint(20, 200)
+            return random.randint(20, 200)
         elif(self.processType == "cpuBound"):
-            return rand.randint(1000, 4500)
+            return random.randint(1000, 4500)
+        else:
+            raise Exception("Invalid Process Type")
 
 if __name__ == '__main__':
-	num_proc = 12
-	num_cpu = 4
-	tSlice = 80
-	processes = []
-	cpu = []
-	turnaround = []
-	total_wait_time = []
-	
+    num_proc = 12
+    num_cpu = 4
+    tSlice = 80
+    processes = []
+    readyQueue = []
+    cpu = []
+    turnaround = []
+    total_wait_time = []
+    
 
-	#arg[0] is the file, 
-	#arg[1] is optional num_proc, 
-	#arg[2] is optional numuber of cpu
-	#arg[3] is optional time slice for RR
-	if len(sys.argv) != 1:
-		if len(sys.argv) > 1 and len(sys.argv) <= 4:
-			if sys.argv[1]:
-				num_proc = int(sys.argv[1])
-			if sys.argv[2]:
-				num_cpu = int(sys.argv[2])
-			if sys.argv[3]:
-				tSlice = int(sys.argv[3])
-	
-	print "Yay"
-	
+    #arg[0] is the file, 
+    #arg[1] is optional num_proc, 
+    #arg[2] is optional numuber of cpu
+    #arg[3] is optional time slice for RR
+    if len(sys.argv) != 1:
+        if len(sys.argv) > 1 and len(sys.argv) >= 2:
+            if sys.argv[1]:
+                num_proc = int(sys.argv[1])
+        if len(sys.argv) > 1 and len(sys.argv) >= 3:
+            if sys.argv[2]:
+                num_cpu = int(sys.argv[2])
+        if len(sys.argv) > 1 and len(sys.argv) >= 4:
+            if sys.argv[3]:
+                tSlice = int(sys.argv[3])
+                
+    
+    cpu = [None for i in range(0,num_cpu)]
+    for i in range(1,num_proc+1):
+        if i <= (num_proc * 4/5):
+            processes.append(Process("interactive",i))
+        else:
+            processes.append(Process("cpuBound",i))
+    
+    random.shuffle(processes)
+    for p in processes:
+        readyQueue.append(p)
+        if(p.processType == "interactive"):
+            print "[time " + str(time) + "ms] Interactive process ID " + str(p.pid) + " entered ready queue (requires " + str(p.burstTime) +  "ms CPU time)"
+        else:
+            print "[time " + str(time) + "ms] CPU-bound process ID " + str(p.pid) + " entered ready queue (requires " + str(p.burstTime) + "ms CPU time)"
+    
+    print "Yay"
+    
 
