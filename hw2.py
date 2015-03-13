@@ -68,22 +68,24 @@ def FCFS(readyQueue, num_cpu):
         
         
         for i in range(0, num_cpu):
-            if cpu[i].justBlocked == 1:
-                ioTime = random.randint(1000, 4500)
-                cpu[i].ioTime += ioTime
-                cpu[i].wait_til = time + ioTime
-                cpu[i].justBlocked = 0
-                
-            if cpu[i].wait_til == time:
-                cpu[i].wait_til = 0
-                cpu[i].state = 2
-                if cpu[i].remainingBursts > 0 :
-                    readyQueue.append(cpu[i])
-                if len(readyQueue) > 0:
-                    temp_p = readyQue.pop(0)
-                    context_switch(cpu[i], temp_p)
-                    cpu[i] = temp_p
-                    cpu[i].start_running = time
+            if cpu[i]:
+                if cpu[i].justBlocked == 1:
+                    ioTime = random.randint(1000, 4500)
+                    cpu[i].ioTime += ioTime
+                    cpu[i].wait_til = time + ioTime
+                    cpu[i].justBlocked = 0
+                    
+                if cpu[i].wait_til == time:
+                    cpu[i].wait_til = 0
+                    if cpu[i].remainingBursts > 0 :
+                        readyQueue.append(cpu[i])
+                    if len(readyQueue) > 0:
+                        temp_p = readyQue.pop(0)
+                        context_switch(cpu[i], temp_p) #implment context switch
+                        cpu[i] = temp_p
+                        cpu[i].start_running = time
+                    else:
+                        cpu[i] = None
                 
 
         for p in readyQueue:
