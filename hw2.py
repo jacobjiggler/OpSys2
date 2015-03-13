@@ -16,8 +16,8 @@ class Process:
         self.waitTime = 0
         self.pid = pid
         
-        #if self.processType == "cpuBound":
-		#	self.remainingBursts = 6
+        if self.processType == "cpuBound":
+			self.remainingBursts = 6
         
 
     def setBurstTime(self):
