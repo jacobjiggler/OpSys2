@@ -29,6 +29,25 @@ class Process:
         else:
             raise Exception("Invalid Process Type")
 
+def context_switch(processA, processB, time):
+    print "[time " + str(time) + "ms] Context switch (swapping out Process ID " + str(processA.pid) + " for Process ID " + str(processB.pid) +")"
+    time+=tcs
+    return time
+    
+def FCFS(readyQueue):
+    
+    return 0
+
+def SJF(readyQueue):
+    return 0
+
+def SJF_preemption(readyQueue):
+    return 0
+
+def Round_Robin(readyQueue, tcs):
+    return 0
+
+
 if __name__ == '__main__':
     num_proc = 12
     num_cpu = 4
@@ -71,6 +90,10 @@ if __name__ == '__main__':
         else:
             print "[time " + str(time) + "ms] CPU-bound process ID " + str(p.pid) + " entered ready queue (requires " + str(p.burstTime) + "ms CPU time)"
     
-    print "Yay"
+    
+    #time = context_switch(readyQueue[0], readyQueue[1], time)
+    
+    
+    print "Yay "
     
 
