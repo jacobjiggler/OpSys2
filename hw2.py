@@ -6,20 +6,19 @@ import random, sys, copy
 # Interactive, cpu bound
 class Process:
     def __init__ (self, processType, pid):
-        self.state = 0 #0 = Blocked on I/O, 1 = Running, 2 = Ready
         self.cpuTime = 0
         self.ioTime = 0
         self.processType = processType
         self.burstTime = self.setBurstTime()
         self.burstTimeLeft = self.burstTime
-        self.burstTimes = []
-        self.waitTimes = []
+        self.totalBurstTime = 0
+        self.totalWaitTime = 0
         self.remainingBursts = 1
         self.waitTime = 0
         self.pid = pid
         self.justBlocked = 0
         self.waitTill = 0
-        
+
 
         if self.processType == "cpuBound":
             self.remainingBursts = 6
@@ -50,8 +49,8 @@ def FCFS(readyQueue, num_cpu):
     for i in range(0, num_cpu):
         if (len(readyQueue) > 0):
             cpu[i] = readyQueue.pop(0)
-    
-    while(len(readyQueue) > 0 or num_finished < num_process):  
+
+    while(len(readyQueue) > 0 or num_finished < num_process):
         time+=1
         for i in range(0, num_cpu):
             if cpu[i]:
@@ -62,24 +61,28 @@ def FCFS(readyQueue, num_cpu):
                     cpu[i].remainingBursts-=1
                     if cpu[i].remainingBursts == 0:
                         num_finished+=1
-                        print "[time " + str(time) + "ms] " + cpu[i].processType + "process ID " + str(cpu[i].pid) + " terminated (turnaround time " + str(time) +  "ms, total wait time " + str(cpu[i].waitTime) + "ms)"
+                        if (cpu[i].processType == "interactive"):
+                            print "[time " + str(time) + "ms] " + cpu[i].processType + "process ID " + str(cpu[i].pid) + " burst done (turnaround time " + str(cpu[i].burstTime + cpu[i].waitTime) +  "ms, total wait time " + str(cpu[i].waitTime) + "ms)"
+                        else:
+                            print "[time " + str(time) + "ms] " + cpu[i].processType + "process ID " + str(cpu[i].pid) + " terminated (avg turnaround time " + "%.3f" % (float(cpu[i].totalBurstTime) / 6) +  "ms, avg total wait time " + "%.3f" % (float(cpu[i].totalWaitTime) / 6) + "ms)"
                     else:
-                        print "[time " + str(time) + "ms] " + cpu[i].processType + "process ID " + str(cpu[i].pid) + " burst done (turnaround time " + str(time) +  "ms, total wait time " + str(cpu[i].waitTime) + "ms)"
-            
-        
+                        #add burst and wait times to totals
+                        cpu[i].totalBurstTime+= cpu[i].burstTime
+                        cpu[i].totalWaitTime+= cpu[i].waitTime
+                        print "[time " + str(time) + "ms] " + cpu[i].processType + "process ID " + str(cpu[i].pid) + " burst done (turnaround time " + str(cpu[i].burstTime + cpu[i].waitTime) +  "ms, total wait time " + str(cpu[i].waitTime) + "ms)"
+
+
         for i in range(0, num_cpu):
             if cpu[i]:
                 if cpu[i].justBlocked == 1:
                     ioTime = random.randint(1000, 4500)
                     cpu[i].ioTime += ioTime
-                    cpu[i].waitTiil = time + ioTime
+                    cpu[i].waitTill = time + ioTime
                     print "I/O time is " + str(ioTime)
                     cpu[i].justBlocked = 0
                     if cpu[i].remainingBursts > 0 :
-                        cpu[i].burstTime = random.randint(1000, 4500)
-                        cpu[i].burstTimeLeft = cpu[i].burstTime
                         waitQueue.append(cpu[i])
-                        
+
                     if len(readyQueue) > 0:
                         temp_p = readyQueue.pop(0)
                         context_switch(cpu[i], temp_p, time) #implment context switch
@@ -91,21 +94,24 @@ def FCFS(readyQueue, num_cpu):
 
         for p in waitQueue:
             if p.waitTill == time:
-                readyQueue.append(p)
+                p.waitTime = 0
+                p.setBurstTime()
+                p.burstTimeLeft = p.burstTime
                 print "[time " + str(time) + "ms] CPU-bound process ID " + str(p.pid) + " entered ready queue (requires " + str(p.burstTime) + "ms CPU time)"
+                readyQueue.append(p)
 
         for p in readyQueue:
             p.waitTime+=1
-    
-    
-    
+
+
+
     total_turnaround = 0
     total_wait = 0
     min_turnaround = output[0].waitTime + output[0].burstTime
     max_turnaround = output[0].waitTime + output[0].burstTime
     min_wait = output[0].waitTime
     max_wait = output[0].waitTime
-    
+
     for p in output:
         temp_wait = p.waitTime
         temp_turnaround = (p.waitTime+p.burstTime)
@@ -119,17 +125,17 @@ def FCFS(readyQueue, num_cpu):
             min_wait = temp_wait
         if temp_wait > max_wait:
             max_wait = temp_wait
-        
+
     avg_turnaround = float(total_turnaround)/len(output)
     avg_wait = float(total_wait)/len(output)
     print "Turnaround time: min " + str(min_turnaround) + "ms; avg " + "%.3f" % (avg_turnaround) + "ms; max " + str(max_turnaround) + "ms"
     print "Total wait time: min " + str(min_wait) + "ms; avg " + "%.3f" % (avg_wait) + "ms; max " + str(max_wait) + "ms"
-    
+
     total_cpu_time = 0
     total_IO_time = 0
     for p in output:
         total_cpu_time+=p.cpuTime
-    
+
     print "Average CPU utilization: %.3f%%" % (total_cpu_time/float(time*num_cpu)*100)
     print ""
     print "Average CPU utilization per process"
@@ -181,7 +187,7 @@ if __name__ == '__main__':
         else:
             processes.append(Process("cpuBound",i))
     random.shuffle(processes)
-    
+
     pid_id = 1
     for p in processes:
         p.pid = pid_id
@@ -191,11 +197,11 @@ if __name__ == '__main__':
             print "[time " + str(time) + "ms] Interactive process ID " + str(p.pid) + " entered ready queue (requires " + str(p.burstTime) +  "ms CPU time)"
         else:
             print "[time " + str(time) + "ms] CPU-bound process ID " + str(p.pid) + " entered ready queue (requires " + str(p.burstTime) + "ms CPU time)"
-    
+
     print "-------------------First Come First Served-------------------"
     FCFS(readyQueue, num_cpu)
 
-    
+
 
 
     print "Yay "
