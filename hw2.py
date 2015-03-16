@@ -33,8 +33,20 @@ class Process:
         else:
             raise Exception("Invalid Process Type")
 
+
 def context_switch(processA, processB, time):
     print "[time " + str(time) + "ms] Context switch (swapping out Process ID " + str(processA.pid) + " for Process ID " + str(processB.pid) +")"
+
+def find_longest(cpu):
+    index = 0;
+    longest_burst = cpu[0].burstTimeLeft
+    for i in range(0, len(cpu)):
+        if longest_burst < cpu[i].burstTimeLeft: 
+            longest_burst = cpu[i].burstTimeLeft
+            index = i
+    
+    return index
+        
 
 
 def FCFS(readyQueue, num_cpu):
