@@ -90,7 +90,7 @@ def FCFS(readyQueue, num_cpu):
                     ioTime = random.randint(1000, 4500)
                     cpu[i].ioTime += ioTime
                     cpu[i].waitTill = time + ioTime
-                    print "I/O time is " + str(ioTime)
+                    #print "I/O time is " + str(ioTime)
                     cpu[i].justBlocked = 0
                     if cpu[i].remainingBursts > 0 :
                         waitQueue.append(cpu[i])
@@ -103,14 +103,19 @@ def FCFS(readyQueue, num_cpu):
                         cpu[i] = temp_p
                     elif(len(readyQueue)==0 and len(waitQueue)==0):
                         cpu[i] = None
-
-        for p in waitQueue:
-            if p.waitTill == time:
-                p.waitTime = 0
-                p.setBurstTime()
-                p.burstTimeLeft = p.burstTime
-                print "[time " + str(time) + "ms] CPU-bound process ID " + str(p.pid) + " entered ready queue (requires " + str(p.burstTime) + "ms CPU time)"
-                readyQueue.append(p)
+        
+        temp = 0
+        for i in range(0, len(waitQueue)):
+            if waitQueue[i].waitTill == time:
+                waitQueue[i].waitTime = 0
+                waitQueue[i].setBurstTime()
+                waitQueue[i].burstTimeLeft = p.burstTime
+                print "[time " + str(time) + "ms] CPU-bound process ID " + str(waitQueue[i].pid) + " entered ready queue (requires " + str(waitQueue[i].burstTime) + "ms CPU time)"
+                readyQueue.append(waitQueue[i])
+                temp = i
+        
+        if temp!= 0:
+            waitQueue.pop(temp)
 
         for p in readyQueue:
             p.waitTime+=1
