@@ -83,6 +83,8 @@ def FCFS(readyQueue, num_cpu):
                     if len(readyQueue) > 0:
                         temp_p = readyQueue.pop(0)
                         context_switch(cpu[i], temp_p, time) #implment context switch
+                        temp_p.cpuTime -= 4
+                        temp_p.burstTimeLeft += 4
                         cpu[i] = temp_p
                     elif(len(readyQueue)==0 and len(waitQueue)==0):
                         cpu[i] = None
@@ -94,17 +96,42 @@ def FCFS(readyQueue, num_cpu):
 
         for p in readyQueue:
             p.waitTime+=1
-  
     
+    
+    
+    total_turnaround = 0
+    total_wait = 0
+    min_turnaround = output[0].waitTime + output[0].burstTime
+    max_turnaround = output[0].waitTime + output[0].burstTime
+    min_wait = output[0].waitTime
+    max_wait = output[0].waitTime
+    
+    for p in output:
+        temp_wait = p.waitTime
+        temp_turnaround = (p.waitTime+p.burstTime)
+        total_wait += temp_wait
+        total_turnaround+= temp_turnaround
+        if temp_turnaround < min_turnaround:
+            min_turnaround = temp_turnaround
+        if temp_turnaround > max_turnaround:
+            max_turnaround = temp_turnaround
+        if temp_wait < min_wait:
+            min_wait = temp_wait
+        if temp_wait > max_wait:
+            max_wait = temp_wait
+        
+    avg_turnaround = float(total_turnaround)/len(output)
+    avg_wait = float(total_wait)/len(output)
+    print "Turnaround time: min " + str(min_turnaround) + "ms; avg " + "%.3f" % (avg_turnaround) + "ms; max " + str(max_turnaround) + "ms"
+    print "Total wait time: min " + str(min_wait) + "ms; avg " + "%.3f" % (avg_wait) + "ms; max " + str(max_wait) + "ms"
     
     total_cpu_time = 0
     total_IO_time = 0
     for p in output:
         total_cpu_time+=p.cpuTime
     
-    print total_cpu_time
     print "Average CPU utilization: %.3f%%" % (total_cpu_time/float(time*num_cpu)*100)
-    
+    print ""
     print "Average CPU utilization per process"
     for p in output:
         print "process ID %d: %.3f%%" %(p.pid , p.cpuTime/float(time * num_cpu) * 100)
