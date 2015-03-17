@@ -64,6 +64,7 @@ def FCFS(readyQueue, num_cpu):
 
     while(len(readyQueue) > 0 or num_finished < num_process):
         time+=1
+        #changes just Blocked = 1 if burstTimeLeft = 0
         for i in range(0, num_cpu):
             if cpu[i]:
                 cpu[i].cpuTime+=1
@@ -83,7 +84,9 @@ def FCFS(readyQueue, num_cpu):
                         cpu[i].totalWaitTime+= cpu[i].waitTime
                         print "[time " + str(time) + "ms] " + cpu[i].processType + " process ID " + str(cpu[i].pid) + " burst done (turnaround time " + str(cpu[i].burstTime + cpu[i].waitTime) +  "ms, total wait time " + str(cpu[i].waitTime) + "ms)"
 
-
+        
+        #cpu[i].waitTill = time+ioTime
+        
         for i in range(0, num_cpu):
             if cpu[i]:
                 if cpu[i].justBlocked == 1:
@@ -94,18 +97,24 @@ def FCFS(readyQueue, num_cpu):
                     cpu[i].justBlocked = 0
                     if cpu[i].remainingBursts > 0 :
                         waitQueue.append(cpu[i])
+                        for j in waitQueue:
+                            print "waitQueue has " + str(j.pid)
 
                     if len(readyQueue) > 0:
+                        for j in readyQueue:
+                            print "ReadyQueue has " + str(j.pid)
                         temp_p = readyQueue.pop(0)
                         context_switch(cpu[i], temp_p, time) #implment context switch
                         temp_p.cpuTime -= 4
                         temp_p.burstTimeLeft += 4
                         cpu[i] = temp_p
-                    elif(len(readyQueue)==0 and len(waitQueue)==0):
+                    elif(len(readyQueue)==0):
                         cpu[i] = None
-
+        
+        #readyQueue---- waitTime+=1
         for p in readyQueue:
             p.waitTime+=1
+        
         temp = len(waitQueue)
         i = 0
         while(i < temp):
@@ -119,16 +128,13 @@ def FCFS(readyQueue, num_cpu):
                 temp = len(waitQueue)
                 i = -1
             i+=1
+        
+        for i in range(0,len(cpu)):
+            if cpu[i] == None:
+                if len(readyQueue)!=0:
+                    cpu[i] = readyQueue.pop(0)
 
-        #print time
-
-        if (len(readyQueue) > 0):
-            print "len readyqueue" + str(len(readyQueue))
-            print "pid readyqueue" + str(readyQueue[0].pid)
-
-
-
-
+        
 
     total_turnaround = 0
     total_wait = 0
