@@ -117,11 +117,14 @@ def FCFS(readyQueue, num_cpu):
                 readyQueue.append(waitQueue[i])
                 waitQueue.pop(i)
                 temp = len(waitQueue)
-                print "removed"
-                i = 0
+                i = -1
             i+=1
 
+        #print time
 
+        if (len(readyQueue) > 0):
+            print "len readyqueue" + str(len(readyQueue))
+            print "pid readyqueue" + str(readyQueue[0].pid)
 
 
 
