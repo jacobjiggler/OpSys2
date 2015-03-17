@@ -97,12 +97,12 @@ def FCFS(readyQueue, num_cpu):
                     cpu[i].justBlocked = 0
                     if cpu[i].remainingBursts > 0 :
                         waitQueue.append(cpu[i])
-                        for j in waitQueue:
-                            print "waitQueue has " + str(j.pid)
+                        #for j in waitQueue:
+                        #    print "waitQueue has " + str(j.pid)
 
                     if len(readyQueue) > 0:
-                        for j in readyQueue:
-                            print "ReadyQueue has " + str(j.pid)
+                        #for j in readyQueue:
+                        #    print "ReadyQueue has " + str(j.pid)
                         temp_p = readyQueue.pop(0)
                         context_switch(cpu[i], temp_p, time) #implment context switch
                         temp_p.cpuTime -= 4
@@ -121,7 +121,9 @@ def FCFS(readyQueue, num_cpu):
             if waitQueue[i].waitTill == time:
                 waitQueue[i].waitTime = 0
                 waitQueue[i].setBurstTime()
-                waitQueue[i].burstTimeLeft = p.burstTime
+                #print str(waitQueue[i].burstTime)
+                waitQueue[i].burstTimeLeft = waitQueue[i].burstTime
+                #print str(waitQueue[i].burstTimeLeft)
                 print "[time " + str(time) + "ms] CPU-bound process ID " + str(waitQueue[i].pid) + " entered ready queue (requires " + str(waitQueue[i].burstTime) + "ms CPU time)"
                 readyQueue.append(waitQueue[i])
                 waitQueue.pop(i)
