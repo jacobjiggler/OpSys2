@@ -20,7 +20,7 @@ class Process:
         self.waitTill = 0
 
 
-        if self.processType == "cpuBound":
+        if self.processType == "CPU-bound":
             self.remainingBursts = 6
 
 
@@ -28,7 +28,7 @@ class Process:
         # Sets random burst time for cpu bound or interactive
         if (self.processType == "interactive"):
             return random.randint(20, 200)
-        elif(self.processType == "cpuBound"):
+        elif(self.processType == "CPU-bound"):
             return random.randint(1000, 4500)
         else:
             raise Exception("Invalid Process Type")
@@ -74,14 +74,14 @@ def FCFS(readyQueue, num_cpu):
                     if cpu[i].remainingBursts == 0:
                         num_finished+=1
                         if (cpu[i].processType == "interactive"):
-                            print "[time " + str(time) + "ms] " + cpu[i].processType + "process ID " + str(cpu[i].pid) + " burst done (turnaround time " + str(cpu[i].burstTime + cpu[i].waitTime) +  "ms, total wait time " + str(cpu[i].waitTime) + "ms)"
+                            print "[time " + str(time) + "ms] " + cpu[i].processType + " process ID " + str(cpu[i].pid) + " burst done (turnaround time " + str(cpu[i].burstTime + cpu[i].waitTime) +  "ms, total wait time " + str(cpu[i].waitTime) + "ms)"
                         else:
-                            print "[time " + str(time) + "ms] " + cpu[i].processType + "process ID " + str(cpu[i].pid) + " terminated (avg turnaround time " + "%.3f" % (float(cpu[i].totalBurstTime) / 6) +  "ms, avg total wait time " + "%.3f" % (float(cpu[i].totalWaitTime) / 6) + "ms)"
+                            print "[time " + str(time) + "ms] " + cpu[i].processType + " process ID " + str(cpu[i].pid) + " terminated (avg turnaround time " + "%.3f" % (float(cpu[i].totalBurstTime) / 6) +  "ms, avg total wait time " + "%.3f" % (float(cpu[i].totalWaitTime) / 6) + "ms)"
                     else:
                         #add burst and wait times to totals
                         cpu[i].totalBurstTime+= cpu[i].burstTime
                         cpu[i].totalWaitTime+= cpu[i].waitTime
-                        print "[time " + str(time) + "ms] " + cpu[i].processType + "process ID " + str(cpu[i].pid) + " burst done (turnaround time " + str(cpu[i].burstTime + cpu[i].waitTime) +  "ms, total wait time " + str(cpu[i].waitTime) + "ms)"
+                        print "[time " + str(time) + "ms] " + cpu[i].processType + " process ID " + str(cpu[i].pid) + " burst done (turnaround time " + str(cpu[i].burstTime + cpu[i].waitTime) +  "ms, total wait time " + str(cpu[i].waitTime) + "ms)"
 
 
         for i in range(0, num_cpu):
@@ -104,6 +104,8 @@ def FCFS(readyQueue, num_cpu):
                     elif(len(readyQueue)==0 and len(waitQueue)==0):
                         cpu[i] = None
 
+        for p in readyQueue:
+            p.waitTime+=1
         temp = len(waitQueue)
         i = 0
         while(i < temp):
@@ -121,8 +123,7 @@ def FCFS(readyQueue, num_cpu):
 
 
 
-        for p in readyQueue:
-            p.waitTime+=1
+
 
 
 
@@ -206,7 +207,7 @@ if __name__ == '__main__':
         if i <= (num_proc * 4/5):
             processes.append(Process("interactive",i))
         else:
-            processes.append(Process("cpuBound",i))
+            processes.append(Process("CPU-bound",i))
     random.shuffle(processes)
 
     pid_id = 1
