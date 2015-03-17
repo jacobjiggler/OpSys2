@@ -41,12 +41,12 @@ def find_longest(cpu):
     index = 0;
     longest_burst = cpu[0].burstTimeLeft
     for i in range(0, len(cpu)):
-        if longest_burst < cpu[i].burstTimeLeft: 
+        if longest_burst < cpu[i].burstTimeLeft:
             longest_burst = cpu[i].burstTimeLeft
             index = i
-    
+
     return index
-        
+
 
 
 def FCFS(readyQueue, num_cpu):
@@ -103,19 +103,23 @@ def FCFS(readyQueue, num_cpu):
                         cpu[i] = temp_p
                     elif(len(readyQueue)==0 and len(waitQueue)==0):
                         cpu[i] = None
-        
-        temp = 0
-        for i in range(0, len(waitQueue)):
+
+        temp = len(waitQueue)
+        i = 0
+        while(i < temp):
             if waitQueue[i].waitTill == time:
                 waitQueue[i].waitTime = 0
                 waitQueue[i].setBurstTime()
                 waitQueue[i].burstTimeLeft = p.burstTime
                 print "[time " + str(time) + "ms] CPU-bound process ID " + str(waitQueue[i].pid) + " entered ready queue (requires " + str(waitQueue[i].burstTime) + "ms CPU time)"
                 readyQueue.append(waitQueue[i])
-                temp = i
-        
-        if temp!= 0:
-            waitQueue.pop(temp)
+                waitQueue.pop(i)
+                temp = len(waitQueue)
+                print "removed"
+                i = 0
+            i+=1
+
+
 
         for p in readyQueue:
             p.waitTime+=1
