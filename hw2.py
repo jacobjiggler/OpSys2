@@ -555,7 +555,6 @@ def Round_Robin(readyQueue, num_cpu, tslice):
                 else:
                     #print str(timeslice[i])
                     if timeslice[i] == 0:
-                        readyQueue.append(cpu[i])
                         if len(readyQueue) > 0:
                             #for j in readyQueue:
                             #    print "ReadyQueue has " + str(j.pid)
@@ -563,8 +562,10 @@ def Round_Robin(readyQueue, num_cpu, tslice):
                             context_switch(cpu[i], temp_p, time) #implment context switch
                             temp_p.cpuTime -= 4
                             temp_p.burstTimeLeft += 4
+                            readyQueue.append(cpu[i])
                             cpu[i] = temp_p
                         elif(len(readyQueue)==0):
+                            readyQueue.append(cpu[i])
                             cpu[i] = None
 
         #cpu[i].waitTill = time+ioTime
