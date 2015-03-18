@@ -39,6 +39,7 @@ class Process:
 def context_switch(processA, processB, time):
     print "[time " + str(time) + "ms] Context switch (swapping out Process ID " + str(processA.pid) + " for Process ID " + str(processB.pid) +")"
 
+#finds the cpu with the longest time left to compare for preemption
 def find_longest(cpu):
     index = 0
     longest_burst = 0
@@ -51,7 +52,7 @@ def find_longest(cpu):
     return index
 
 
-
+#first come first served
 def FCFS(readyQueue, num_cpu):
     output = list(readyQueue)
     time = 0
@@ -65,6 +66,7 @@ def FCFS(readyQueue, num_cpu):
         if (len(readyQueue) > 0):
             cpu[i] = readyQueue.pop(0)
 
+    #loops until num finished is complete
     while(len(readyQueue) > 0 or num_finished < num_process):
         time+=1
         #changes just Blocked = 1 if burstTimeLeft = 0
@@ -72,6 +74,7 @@ def FCFS(readyQueue, num_cpu):
             if cpu[i]:
                 cpu[i].cpuTime+=1
                 cpu[i].burstTimeLeft-=1
+                #if burst has completed
                 if cpu[i].burstTimeLeft == 0:
                     cpu[i].justBlocked = 1
                     cpu[i].remainingBursts-=1
@@ -96,11 +99,10 @@ def FCFS(readyQueue, num_cpu):
                         cpu[i].waitTimes.append(cpu[i].waitTime)
                         print "[time " + str(time) + "ms] " + cpu[i].processType + " process ID " + str(cpu[i].pid) + " burst done (turnaround time " + str(cpu[i].burstTime + cpu[i].waitTime) +  "ms, total wait time " + str(cpu[i].waitTime) + "ms)"
 
-
-        #cpu[i].waitTill = time+ioTime
-
+        #loop through cpus
         for i in range(0, num_cpu):
             if cpu[i]:
+                #if cpu just finished starts its IO time if it is not interactive
                 if cpu[i].justBlocked == 1:
                     ioTime = random.randint(1000, 4500)
                     cpu[i].ioTime += ioTime
@@ -566,9 +568,9 @@ def Round_Robin(readyQueue, num_cpu, tslice):
                             cpu[i] = temp_p
                         elif(len(readyQueue)==0):
                             readyQueue.append(cpu[i])
+                            print "[time " + str(time) + "ms] Context switch (swapping out Process ID " + str(cpu[i].pid) + " for Process None )"            
                             cpu[i] = None
 
-        #cpu[i].waitTill = time+ioTime
 
         for i in range(0, num_cpu):
             if cpu[i]:
@@ -592,7 +594,6 @@ def Round_Robin(readyQueue, num_cpu, tslice):
                         temp_p.burstTimeLeft += 4
                         cpu[i] = temp_p
                     elif(len(readyQueue)==0):
-                        print "[time " + str(time) + "ms] Context switch (swapping out Process ID " + str(cpu[i].pid) + " for Process None )"
                         cpu[i] = None
 
         #readyQueue---- waitTime+=1
