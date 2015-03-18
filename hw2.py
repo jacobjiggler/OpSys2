@@ -95,9 +95,9 @@ def FCFS(readyQueue, num_cpu):
                         cpu[i].waitTimes.append(cpu[i].waitTime)
                         print "[time " + str(time) + "ms] " + cpu[i].processType + " process ID " + str(cpu[i].pid) + " burst done (turnaround time " + str(cpu[i].burstTime + cpu[i].waitTime) +  "ms, total wait time " + str(cpu[i].waitTime) + "ms)"
 
-        
+
         #cpu[i].waitTill = time+ioTime
-        
+
         for i in range(0, num_cpu):
             if cpu[i]:
                 if cpu[i].justBlocked == 1:
@@ -121,11 +121,11 @@ def FCFS(readyQueue, num_cpu):
                         cpu[i] = temp_p
                     elif(len(readyQueue)==0):
                         cpu[i] = None
-        
+
         #readyQueue---- waitTime+=1
         for p in readyQueue:
             p.waitTime+=1
-        
+
         temp = len(waitQueue)
         i = 0
         while(i < temp):
@@ -141,13 +141,13 @@ def FCFS(readyQueue, num_cpu):
                 temp = len(waitQueue)
                 i = -1
             i+=1
-        
+
         for i in range(0,len(cpu)):
             if cpu[i] == None:
                 if len(readyQueue)!=0:
                     cpu[i] = readyQueue.pop(0)
 
-        
+
 
     total_turnaround = 0
     total_wait = 0
@@ -172,7 +172,7 @@ def FCFS(readyQueue, num_cpu):
                 min_wait = temp_wait
             if temp_wait > max_wait:
                 max_wait = temp_wait
-        
+
 
     avg_turnaround = float(total_turnaround)/count
     avg_wait = float(total_wait)/count
@@ -236,9 +236,9 @@ def SJF(readyQueue, num_cpu):
                         cpu[i].waitTimes.append(cpu[i].waitTime)
                         print "[time " + str(time) + "ms] " + cpu[i].processType + " process ID " + str(cpu[i].pid) + " burst done (turnaround time " + str(cpu[i].burstTime + cpu[i].waitTime) +  "ms, total wait time " + str(cpu[i].waitTime) + "ms)"
 
-        
+
         #cpu[i].waitTill = time+ioTime
-        
+
         for i in range(0, num_cpu):
             if cpu[i]:
                 if cpu[i].justBlocked == 1:
@@ -263,11 +263,11 @@ def SJF(readyQueue, num_cpu):
                         cpu[i] = temp_p
                     elif(len(readyQueue)==0):
                         cpu[i] = None
-        
+
         #readyQueue---- waitTime+=1
         for p in readyQueue:
             p.waitTime+=1
-        
+
         temp = len(waitQueue)
         i = 0
         while(i < temp):
@@ -283,14 +283,14 @@ def SJF(readyQueue, num_cpu):
                 temp = len(waitQueue)
                 i = -1
             i+=1
-        
+
         for i in range(0,len(cpu)):
             if cpu[i] == None:
                 if len(readyQueue)!=0:
                     readyQueue = sorted(readyQueue, key=lambda process: process.burstTimeLeft)
                     cpu[i] = readyQueue.pop(0)
 
-        
+
 
     total_turnaround = 0
     total_wait = 0
@@ -315,7 +315,7 @@ def SJF(readyQueue, num_cpu):
                 min_wait = temp_wait
             if temp_wait > max_wait:
                 max_wait = temp_wait
-        
+
 
     avg_turnaround = float(total_turnaround)/count
     avg_wait = float(total_wait)/count
@@ -336,8 +336,163 @@ def SJF(readyQueue, num_cpu):
 def SJF_preemption(readyQueue, num_cpu):
     return 0
 
-def Round_Robin(readyQueue, tslice, num_cpu):
-    return 0
+def Round_Robin(readyQueue, num_cpu, tslice):
+    output = list(readyQueue)
+    time = 0
+    tcs = 4
+    cpu = []
+    timeslice= []
+    waitQueue = []
+    num_process = len(readyQueue)
+    cpu = [None for i in range(0,num_cpu)]
+    timeslice = [None for i in range(0,num_cpu)]
+    num_finished = 0
+    for i in range(0, num_cpu):
+        if (len(readyQueue) > 0):
+            cpu[i] = readyQueue.pop(0)
+            timeslice[i] = tslice
+    while(num_finished < num_process):
+        time+=1
+        #changes just Blocked = 1 if burstTimeLeft = 0
+        for i in range(0, num_cpu):
+            if cpu[i]:
+                cpu[i].cpuTime+=1
+                cpu[i].burstTimeLeft-=1
+                timeslice[i]-=1
+                if cpu[i].burstTimeLeft == 0:
+                    cpu[i].justBlocked = 1
+                    cpu[i].remainingBursts-=1
+                    timeslice[i] = tslice
+                    if cpu[i].remainingBursts == 0:
+                        num_finished+=1
+                        if (cpu[i].processType == "Interactive"):
+                            cpu[i].burstTimes.append(cpu[i].burstTime)
+                            cpu[i].waitTimes.append(cpu[i].waitTime)
+                            print "[time " + str(time) + "ms] " + cpu[i].processType + " process ID " + str(cpu[i].pid) + " burst done (turnaround time " + str(cpu[i].burstTime + cpu[i].waitTime) +  "ms, total wait time " + str(cpu[i].waitTime) + "ms)"
+                        else:
+                            #add burst and wait times to totals
+                            cpu[i].totalBurstTime += cpu[i].burstTime
+                            cpu[i].totalWaitTime+= cpu[i].waitTime
+                            cpu[i].burstTimes.append(cpu[i].burstTime)
+                            cpu[i].waitTimes.append(cpu[i].waitTime)
+                            print "[time " + str(time) + "ms] " + cpu[i].processType + " process ID " + str(cpu[i].pid) + " terminated (avg turnaround time " + "%.3f" % (float(cpu[i].totalBurstTime) / 6) +  "ms, avg total wait time " + "%.3f" % (float(cpu[i].totalWaitTime) / 6) + "ms)"
+                    else:
+                        #add burst and wait times to totals
+                        cpu[i].totalBurstTime+= cpu[i].burstTime
+                        cpu[i].totalWaitTime+= cpu[i].waitTime
+                        cpu[i].burstTimes.append(cpu[i].burstTime)
+                        cpu[i].waitTimes.append(cpu[i].waitTime)
+                        print "[time " + str(time) + "ms] " + cpu[i].processType + " process ID " + str(cpu[i].pid) + " burst done (turnaround time " + str(cpu[i].burstTime + cpu[i].waitTime) +  "ms, total wait time " + str(cpu[i].waitTime) + "ms)"
+                else:
+                    #print str(timeslice[i])
+                    if timeslice[i] == 0:
+                        readyQueue.append(cpu[i])
+                        if len(readyQueue) > 0:
+                            #for j in readyQueue:
+                            #    print "ReadyQueue has " + str(j.pid)
+                            temp_p = readyQueue.pop(0)
+                            context_switch(cpu[i], temp_p, time) #implment context switch
+                            temp_p.cpuTime -= 4
+                            temp_p.burstTimeLeft += 4
+                            cpu[i] = temp_p
+                        elif(len(readyQueue)==0):
+                            cpu[i] = None
+
+        #cpu[i].waitTill = time+ioTime
+
+        for i in range(0, num_cpu):
+            if cpu[i]:
+                if cpu[i].justBlocked == 1:
+                    ioTime = random.randint(1000, 4500)
+                    cpu[i].ioTime += ioTime
+                    cpu[i].waitTill = time + ioTime
+                    #print "I/O time is " + str(ioTime)
+                    cpu[i].justBlocked = 0
+                    if cpu[i].remainingBursts > 0 :
+                        waitQueue.append(cpu[i])
+                        #for j in waitQueue:
+                        #    print "waitQueue has " + str(j.pid)
+
+                    if len(readyQueue) > 0:
+                        #for j in readyQueue:
+                        #    print "ReadyQueue has " + str(j.pid)
+                        temp_p = readyQueue.pop(0)
+                        context_switch(cpu[i], temp_p, time) #implment context switch
+                        temp_p.cpuTime -= 4
+                        temp_p.burstTimeLeft += 4
+                        cpu[i] = temp_p
+                    elif(len(readyQueue)==0):
+                        cpu[i] = None
+
+        #readyQueue---- waitTime+=1
+        for p in readyQueue:
+            p.waitTime+=1
+
+        temp = len(waitQueue)
+        i = 0
+        while(i < temp):
+            if waitQueue[i].waitTill == time:
+                waitQueue[i].waitTime = 0
+                waitQueue[i].setBurstTime()
+                #print str(waitQueue[i].burstTime)
+                waitQueue[i].burstTimeLeft = waitQueue[i].burstTime
+                #print str(waitQueue[i].burstTimeLeft)
+                print "[time " + str(time) + "ms] CPU-bound process ID " + str(waitQueue[i].pid) + " entered ready queue (requires " + str(waitQueue[i].burstTime) + "ms CPU time)"
+                readyQueue.append(waitQueue[i])
+                waitQueue.pop(i)
+                temp = len(waitQueue)
+                i = -1
+            i+=1
+
+        for i in range(0,len(cpu)):
+            if cpu[i] == None:
+                if len(readyQueue)!=0:
+                    cpu[i] = readyQueue.pop(0)
+
+
+
+    total_turnaround = 0
+    total_wait = 0
+    min_turnaround = output[0].waitTimes[0] + output[0].burstTimes[0]
+    max_turnaround = output[0].waitTimes[0] + output[0].burstTimes[0]
+    min_wait = output[0].waitTimes[0]
+    max_wait = output[0].waitTimes[0]
+    count = 0
+
+    for p in output:
+        for i in range(0,len(p.waitTimes)):
+            count+=1
+            temp_wait = p.waitTimes[i]
+            temp_turnaround = (p.waitTimes[i]+p.burstTimes[i])
+            total_wait += temp_wait
+            total_turnaround+= temp_turnaround
+            if temp_turnaround < min_turnaround:
+                min_turnaround = temp_turnaround
+            if temp_turnaround > max_turnaround:
+                max_turnaround = temp_turnaround
+            if temp_wait < min_wait:
+                min_wait = temp_wait
+            if temp_wait > max_wait:
+                max_wait = temp_wait
+
+
+    avg_turnaround = float(total_turnaround)/count
+    avg_wait = float(total_wait)/count
+    print "Turnaround time: min " + str(min_turnaround) + "ms; avg " + "%.3f" % (avg_turnaround) + "ms; max " + str(max_turnaround) + "ms"
+    print "Total wait time: min " + str(min_wait) + "ms; avg " + "%.3f" % (avg_wait) + "ms; max " + str(max_wait) + "ms"
+
+    total_cpu_time = 0
+    total_IO_time = 0
+    for p in output:
+        total_cpu_time+=p.cpuTime
+
+    print "Average CPU utilization: %.3f%%" % (total_cpu_time/float(time*num_cpu)*100)
+    print ""
+    print "Average CPU utilization per process"
+    for p in output:
+        print "process ID %d: %.3f%%" %(p.pid , p.cpuTime/float(time * num_cpu) * 100)
+
+
 
 
 if __name__ == '__main__':
@@ -387,8 +542,8 @@ if __name__ == '__main__':
 
     print "-------------------First Come First Served-------------------"
     FCFS(copy.deepcopy(readyQueue), num_cpu)
-    
-    
+
+
     print "-------------------Shortest Job First-------------------"
     readyQueue = []
     pid_id = 1
@@ -400,11 +555,25 @@ if __name__ == '__main__':
             print "[time " + str(time) + "ms] Interactive process ID " + str(p.pid) + " entered ready queue (requires " + str(p.burstTime) +  "ms CPU time)"
         else:
             print "[time " + str(time) + "ms] CPU-bound process ID " + str(p.pid) + " entered ready queue (requires " + str(p.burstTime) + "ms CPU time)"
-    
-    
+
+
 
     SJF(copy.deepcopy(readyQueue), num_cpu)
 
+    print "-------------------Round Robin-------------------"
+    readyQueue = []
+    pid_id = 1
+    for p in processes:
+        p.pid = pid_id
+        readyQueue.append(p)
+        pid_id+=1
+        if(p.processType == "Interactive"):
+            print "[time " + str(time) + "ms] Interactive process ID " + str(p.pid) + " entered ready queue (requires " + str(p.burstTime) +  "ms CPU time)"
+        else:
+            print "[time " + str(time) + "ms] CPU-bound process ID " + str(p.pid) + " entered ready queue (requires " + str(p.burstTime) + "ms CPU time)"
 
+
+
+    Round_Robin(copy.deepcopy(readyQueue), num_cpu, tSlice)
 
     print "Yay "
