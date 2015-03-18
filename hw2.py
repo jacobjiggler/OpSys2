@@ -121,6 +121,7 @@ def FCFS(readyQueue, num_cpu):
                         temp_p.burstTimeLeft += 4
                         cpu[i] = temp_p
                     elif(len(readyQueue)==0):
+                        print "[time " + str(time) + "ms] Context switch (swapping out Process ID " + str(cpu[i].pid) + " for Process None )"
                         cpu[i] = None
 
         #readyQueue---- waitTime+=1
@@ -147,6 +148,8 @@ def FCFS(readyQueue, num_cpu):
             if cpu[i] == None:
                 if len(readyQueue)!=0:
                     cpu[i] = readyQueue.pop(0)
+                    print "[time " + str(time) + "ms] Context switch (swapping out No Process" + " for Process ID " + str(cpu[i].pid) +")"
+
 
 
 
@@ -263,6 +266,7 @@ def SJF(readyQueue, num_cpu):
                         temp_p.burstTimeLeft += 4
                         cpu[i] = temp_p
                     elif(len(readyQueue)==0):
+                        print "[time " + str(time) + "ms] Context switch (swapping out Process ID " + str(cpu[i].pid) + " for Process None )"
                         cpu[i] = None
 
         #readyQueue---- waitTime+=1
@@ -290,6 +294,7 @@ def SJF(readyQueue, num_cpu):
                 if len(readyQueue)!=0:
                     readyQueue = sorted(readyQueue, key=lambda process: process.burstTimeLeft)
                     cpu[i] = readyQueue.pop(0)
+                    print "[time " + str(time) + "ms] Context switch (swapping out No Process" + " for Process ID " + str(cpu[i].pid) +")"
 
 
 
@@ -405,6 +410,7 @@ def SJF_preemption(readyQueue, num_cpu):
                         temp_p.burstTimeLeft += 4
                         cpu[i] = temp_p
                     elif(len(readyQueue)==0):
+                        print "[time " + str(time) + "ms] Context switch (swapping out Process ID " + str(cpu[i].pid) + " for Process None )"
                         cpu[i] = None
 
         #readyQueue---- waitTime+=1
@@ -460,6 +466,7 @@ def SJF_preemption(readyQueue, num_cpu):
                 if len(readyQueue)!=0:
                     readyQueue = sorted(readyQueue, key=lambda process: process.burstTimeLeft)
                     cpu[i] = readyQueue.pop(0)
+                    print "[time " + str(time) + "ms] Context switch (swapping out No Process" + " for Process ID " + str(cpu[i].pid) +")"
 
 
 
@@ -764,4 +771,3 @@ if __name__ == '__main__':
 
     Round_Robin(copy.deepcopy(readyQueue), num_cpu, tSlice)
 
-    print "Yay "
