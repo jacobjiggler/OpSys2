@@ -596,7 +596,9 @@ def Round_Robin(readyQueue, num_cpu, tslice, num_cpu_bound):
                     cpu[i].waitTill = time + ioTime
                     #print "I/O time is " + str(ioTime)
                     cpu[i].justBlocked = 0
-                    if cpu[i].remainingBursts > 0 :
+                    if cpu[i].processType == "Interactive":
+                        waitQueue.append(cpu[i])
+                    elif cpu[i].remainingBursts > 0 :
                         waitQueue.append(cpu[i])
                         #for j in waitQueue:
                         #    print "waitQueue has " + str(j.pid)
@@ -609,7 +611,7 @@ def Round_Robin(readyQueue, num_cpu, tslice, num_cpu_bound):
                         temp_p.cpuTime -= 4
                         temp_p.burstTimeLeft += 4
                         cpu[i] = temp_p
-                    elif(len(readyQueue)==0):
+                    else:
                         cpu[i] = None
 
         #readyQueue---- waitTime+=1
@@ -625,7 +627,10 @@ def Round_Robin(readyQueue, num_cpu, tslice, num_cpu_bound):
                 #print str(waitQueue[i].burstTime)
                 waitQueue[i].burstTimeLeft = waitQueue[i].burstTime
                 #print str(waitQueue[i].burstTimeLeft)
-                print "[time " + str(time) + "ms] CPU-bound process ID " + str(waitQueue[i].pid) + " entered ready queue (requires " + str(waitQueue[i].burstTime) + "ms CPU time)"
+                if waitQueue[i].processType == "Interactive":
+                    print "[time " + str(time) + "ms] Interactive process ID " + str(waitQueue[i].pid) + " entered ready queue (requires " + str(waitQueue[i].burstTime) + "ms CPU time)"
+                else:
+                    print "[time " + str(time) + "ms] CPU-bound process ID " + str(waitQueue[i].pid) + " entered ready queue (requires " + str(waitQueue[i].burstTime) + "ms CPU time)"
                 readyQueue.append(waitQueue[i])
                 waitQueue.pop(i)
                 temp = len(waitQueue)
