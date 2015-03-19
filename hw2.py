@@ -521,7 +521,7 @@ def SJF_preemption(readyQueue, num_cpu):
         print "process ID %d: %.3f%%" %(p.pid , p.cpuTime/float(time * num_cpu) * 100)
     return 0
 
-def Round_Robin(readyQueue, num_cpu, tslice):
+def Round_Robin(readyQueue, num_cpu, tslice, num_cpu_bound):
     output = list(readyQueue)
     time = 0
     tcs = 4
@@ -536,7 +536,7 @@ def Round_Robin(readyQueue, num_cpu, tslice):
         if (len(readyQueue) > 0):
             cpu[i] = readyQueue.pop(0)
             timeslice[i] = tslice
-    while(num_finished < num_process):
+    while(num_finished < num_cpu_bound):
         time+=1
         #changes just Blocked = 1 if burstTimeLeft = 0
         for i in range(0, num_cpu):
@@ -546,13 +546,22 @@ def Round_Robin(readyQueue, num_cpu, tslice):
                 timeslice[i]-=1
                 if cpu[i].burstTimeLeft == 0:
                     cpu[i].justBlocked = 1
-                    cpu[i].remainingBursts-=1
                     timeslice[i] = tslice
-                    if cpu[i].remainingBursts == 0:
-                        num_finished+=1
-                        if (cpu[i].processType == "Interactive"):
+                    if cpu[i].processType == "Interactive":
+                        cpu[i].burstTimes.append(cpu[i].burstTime)
+                        cpu[i].waitTimes.append(cpu[i].waitTime)
+                        cpu[i].totalBurstTime += cpu[i].burstTime
+                        cpu[i].totalWaitTime+= cpu[i].waitTime
+                        print "[time " + str(time) + "ms] " + cpu[i].processType + " process ID " + str(cpu[i].pid) + " burst done (turnaround time " + str(cpu[i].burstTime + cpu[i].waitTime) +  "ms, total wait time " + str(cpu[i].waitTime) + "ms)"
+                    else:
+                        cpu[i].remainingBursts-=1
+                        if cpu[i].remainingBursts == 0:
+                            #add burst and wait times to totals
+                            cpu[i].totalBurstTime += cpu[i].burstTime
+                            cpu[i].totalWaitTime+= cpu[i].waitTime
                             cpu[i].burstTimes.append(cpu[i].burstTime)
                             cpu[i].waitTimes.append(cpu[i].waitTime)
+                            num_finished+=1
                             print "[time " + str(time) + "ms] " + cpu[i].processType + " process ID " + str(cpu[i].pid) + " burst done (turnaround time " + str(cpu[i].burstTime + cpu[i].waitTime) +  "ms, total wait time " + str(cpu[i].waitTime) + "ms)"
                         else:
                             #add burst and wait times to totals
@@ -561,13 +570,6 @@ def Round_Robin(readyQueue, num_cpu, tslice):
                             cpu[i].burstTimes.append(cpu[i].burstTime)
                             cpu[i].waitTimes.append(cpu[i].waitTime)
                             print "[time " + str(time) + "ms] " + cpu[i].processType + " process ID " + str(cpu[i].pid) + " terminated (avg turnaround time " + "%.3f" % (float(cpu[i].totalBurstTime) / 6) +  "ms, avg total wait time " + "%.3f" % (float(cpu[i].totalWaitTime) / 6) + "ms)"
-                    else:
-                        #add burst and wait times to totals
-                        cpu[i].totalBurstTime+= cpu[i].burstTime
-                        cpu[i].totalWaitTime+= cpu[i].waitTime
-                        cpu[i].burstTimes.append(cpu[i].burstTime)
-                        cpu[i].waitTimes.append(cpu[i].waitTime)
-                        print "[time " + str(time) + "ms] " + cpu[i].processType + " process ID " + str(cpu[i].pid) + " burst done (turnaround time " + str(cpu[i].burstTime + cpu[i].waitTime) +  "ms, total wait time " + str(cpu[i].waitTime) + "ms)"
                 else:
                     #print str(timeslice[i])
                     if timeslice[i] == 0:
@@ -582,7 +584,7 @@ def Round_Robin(readyQueue, num_cpu, tslice):
                             cpu[i] = temp_p
                         elif(len(readyQueue)==0):
                             readyQueue.append(cpu[i])
-                            print "[time " + str(time) + "ms] Context switch (swapping out Process ID " + str(cpu[i].pid) + " for Process None )"            
+                            print "[time " + str(time) + "ms] Context switch (swapping out Process ID " + str(cpu[i].pid) + " for Process None )"
                             cpu[i] = None
 
 
@@ -779,5 +781,4 @@ if __name__ == '__main__':
         else:
             print "[time " + str(time) + "ms] CPU-bound process ID " + str(p.pid) + " entered ready queue (requires " + str(p.burstTime) + "ms CPU time)"
 
-    #Round_Robin(copy.deepcopy(readyQueue), num_cpu, tSlice)
-
+    Round_Robin(copy.deepcopy(readyQueue), num_cpu, tSlice, num_cpu_bound)
